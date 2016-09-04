@@ -34,22 +34,36 @@ best <- function(state, outcome) {
   
   ## Return hospital name in that state with lowest 30-day death
   ## rate
-  #pull out just the state data
+  #pull out the state data
   ocm_my_state <- subset(ocm,ocm$State == state)
-  #convert factor to 
-  outcome_data <- ocm_my_state[,eval(outcome)]
+  ##print(head(ocm_my_state))
+
+  ##pull out just mortality and hostpital name 
+  ##originally did this so I could use complete cases but it didn't work for some reason.
+  ocm_my_outcome <- subset(ocm_my_state,select=c(eval(outcome),"Hospital.Name"))
   
-  # convert to numeric
-  outcome_data <- as.numeric(levels(outcome_data))[outcome_data]
-  head(outcome_data)
+  ##rename the column because sick of this eval thing
+  colnames(ocm_my_outcome)[which(names(ocm_my_outcome) == eval(outcome))] <- "ThirtyDayMort"
+  #print(head(ocm_my_outcome))
   
-  #str(ocm_my_state)
-  #best_h <- min(ocm_my_state[,eval(outcome)])
-  #head(best_h)
+  ## god tried a thousand things and finally did this to get rid of Not Availables
+  ## tried complete.cases and is.na but weird results
+  ocm_my_outcome <- subset(ocm_my_outcome,ocm_my_outcome$ThirtyDayMort != "Not Available")
+  ## convert factor to numeric
+  ocm_my_outcome$ThirtyDayMort <- as.numeric(as.character(ocm_my_outcome$ThirtyDayMort))
+  #subset by minimum
+  min_mort <- subset(ocm_my_outcome,ocm_my_outcome$ThirtyDayMort == min(ocm_my_outcome$ThirtyDayMort))
+  #sort by hospital name
+  min_mort <- min_mort[order(min_mort$Hospital.Name),]
+  # convert from factor to character
+  best_h <- as.character(min_mort[1,"Hospital.Name"])
+  best_h
   
 }
 
-best("CA","heart attack")
-best("CC","heart attack")
-best("CA","pneumonia")
-best("CA","pneumoniaa")
+#examples to run
+best("MD","heart attack")
+#best("CC","heart attack")
+#best("MD","pneumonia")
+#best("CA","pneumonia")
+#best("MI","heart failure")
