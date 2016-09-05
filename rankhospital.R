@@ -44,8 +44,6 @@ rankhospital <- function(state, outcome, num = "best") {
   ##rename the column because sick of this eval thing
   colnames(ocm_my_outcome)[which(names(ocm_my_outcome) == eval(outcome))] <- "ThirtyDayMort"
   
-  
-  
   ## god tried a thousand things and finally did this to get rid of Not Availables
   ## tried complete.cases and is.na but weird results
   ocm_my_outcome <- subset(ocm_my_outcome,ocm_my_outcome$ThirtyDayMort != "Not Available")
